@@ -5,6 +5,7 @@ import (
     "net/http"
     "net/url"
     "io"
+    "io/ioutil"
     "os"
     "strings"
 )
@@ -40,6 +41,16 @@ type CwApi struct {
 func (ca *CwApi) toRequest() (*http.Request, error) {
     url := "https://" + ca.Host + "/" + ca.Version + "/" + strings.Join(ca.Paths, "/")
     req, err := http.NewRequest(ca.Method, url, nil)
+
+    if ca.Param != nil {
+        query := ca.Param.Encode()
+        if strings.ToUpper(ca.Method) == "GET" {
+            req.URL.RawQuery = query
+        } else {
+            req.Body = ioutil.NopCloser(strings.NewReader(query))
+        }
+    }
+
     if err != nil {
         return req, err
     }
@@ -61,16 +72,6 @@ type TokenFromEnvAuthorizer struct {
 func (ta *TokenFromEnvAuthorizer) Authorize(r *http.Request) {
     token := os.Getenv(ta.EnvName)
     r.Header.Add("X-ChatWorkToken", token)
-}
-
-func getMethodAndPaths() (string, []string) {
-    args := os.Args[1:]
-    switch len(args) {
-    case 0:
-        return http.MethodGet, []string{"me"}
-    default:
-        return args[0], args[1:]
-    }
 }
 
 func parseArguments(args []string) (string, []string, url.Values) {
