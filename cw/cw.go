@@ -5,14 +5,26 @@ import (
     "net/http"
     "io"
     "os"
+    "strings"
 )
 
+func getMethodAndPaths() (string, []string) {
+    args := os.Args[1:]
+    switch len(args) {
+    case 0:
+        return http.MethodGet, []string{"me"}
+    default:
+        return args[0], args[1:]
+    }
+}
+
 func main() {
-    fmt.Println("Let's go!")
 
-    client := &http.Client{}
+    meth, paths := getMethodAndPaths()
 
-    req, err := http.NewRequest("GET", "https://api.chatwork.com/v2/me", nil)
+    path := strings.Join(paths, "/")
+
+    req, err := http.NewRequest(meth, "https://api.chatwork.com/v2/" + path, nil)
     if err != nil {
         fmt.Println(err)
         return
@@ -23,6 +35,8 @@ func main() {
     fmt.Print(req.Method+" ")
     fmt.Println(req.URL)
     printHeader(req.Header)
+
+    client := &http.Client{}
 
     res, err := client.Do(req)
     if err != nil {
