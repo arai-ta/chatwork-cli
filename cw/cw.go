@@ -18,7 +18,11 @@ func main() {
         return
     }
 
-    req.Header.Add("X-ChatWork-Token", "hoge")
+    req.Header.Add("X-ChatWorkToken", getApiToken())
+
+    fmt.Print(req.Method+" ")
+    fmt.Println(req.URL)
+    printHeader(req.Header)
 
     res, err := client.Do(req)
     if err != nil {
@@ -26,16 +30,15 @@ func main() {
         return
     }
 
-    printHeader(res)
+    fmt.Println(res.Status)
+    printHeader(res.Header)
     printBody(res)
 }
 
-func printHeader(res *http.Response) {
-    fmt.Println("STATUS: ", res.Status)
-    fmt.Println("")
-    for name, values := range res.Header {
+func printHeader(h http.Header) {
+    for name, values := range h {
         for _, v := range values {
-            fmt.Println(name, ": ", v)
+            fmt.Println(name+": "+v)
         }
     }
 }
@@ -43,4 +46,8 @@ func printHeader(res *http.Response) {
 func printBody(res *http.Response) {
     io.Copy(os.Stdout, res.Body)
     res.Body.Close()
+}
+
+func getApiToken() string {
+    return os.Getenv("CW_API_TOKEN")
 }
