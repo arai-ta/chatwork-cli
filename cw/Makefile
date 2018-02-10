@@ -1,4 +1,7 @@
 
+default: build
+	./cw
+
 run:
 	go run cw.go
 
