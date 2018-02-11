@@ -1,0 +1,15 @@
+
+default_profile = "arai"
+
+[profiles]
+
+[profiles.a1]
+host    = "local.chatwork.com/sub/dir/"
+version = "v2"
+auth    = "token"
+token   = "deadbeefb001"
+
+[profiles.arai]
+auth    = "token"
+version = "v3"
+token   = "e999ef466023868ea2fded8c098c39d1"

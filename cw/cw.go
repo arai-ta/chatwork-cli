@@ -37,6 +37,13 @@ type CwApi struct {
     Auth CwApiAuthorizer
 }
 
+func NewCwApi() *CwApi {
+    api := CwApi{}
+    api.Host    = DEFAULT_HOST
+    api.Version = DEFAULT_VERSION
+    return &api
+}
+
 // http.Requestをつくる
 func (ca *CwApi) toRequest() (*http.Request, error) {
     url := "https://" + ca.Host + "/" + ca.Version + "/" + strings.Join(ca.Paths, "/")
@@ -105,9 +112,14 @@ func main() {
 
     meth, paths, param := parseArguments(os.Args[1:])
 
-    api := CwApi{}
-    api.Host = DEFAULT_HOST
-    api.Version = DEFAULT_VERSION
+    cfg, err := ReadConfig("")
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+
+    api := NewCwApi()
+    api.Version = cfg.Profiles["arai"].Version
     api.Method = meth
     api.Paths = paths
     api.Param = param
