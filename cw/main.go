@@ -14,14 +14,7 @@ func parseArguments(args []string) (string, []string, url.Values) {
     paths   := []string{"me"}
     params  := url.Values{}
 
-    num := len(args)
-    switch {
-    case 1 <= num:
-        method = args[0]
-        fallthrough
-    case 2 <= num:
-        paths = []string{args[1]}
-        fallthrough
+    switch num := len(args); {
     case 3 <= num:
         for _, a := range args[2:] {
             if strings.Contains(a, "=") {
@@ -31,6 +24,12 @@ func parseArguments(args []string) (string, []string, url.Values) {
                 paths = append(paths, a)
             }
         }
+        fallthrough
+    case 2 <= num:
+        paths[0] = args[1]
+        fallthrough
+    case 1 <= num:
+        method = args[0]
     }
 
     return method, paths, params
@@ -46,8 +45,7 @@ func main() {
         return
     }
 
-    api := NewCwApi()
-    api.Version = cfg.Profiles["arai"].Version
+    api := NewCwApiFromConfig(cfg)
     api.Method = meth
     api.Paths = paths
     api.Param = param

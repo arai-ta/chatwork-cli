@@ -43,6 +43,31 @@ func NewCwApi() *CwApi {
     return &api
 }
 
+func NewCwApiFromConfig(cfg *ApiConfig) *CwApi {
+    name := cfg.DefaultProfile
+    prof, ok := cfg.Profiles[name]
+    if ok {
+        return NewCwApiWithProfile(&prof)
+    } else {
+        return NewCwApi()
+    }
+}
+
+func NewCwApiWithProfile(prof *ApiConfigProfile) *CwApi {
+    api := NewCwApi()
+    if prof.Host != "" {
+        api.Host = prof.Host
+    }
+    if prof.Version != "" {
+        api.Version = prof.Version
+    }
+    switch prof.Auth {
+    case "token":
+        api.Auth = &TokenFromValueAuthorizer{prof.Token}
+    }
+    return api
+}
+
 // http.Requestをつくる
 func (a *CwApi) toRequest() (*http.Request, error) {
     url := "https://" + a.Host + "/" + a.Version + "/" + strings.Join(a.Paths, "/")
@@ -78,5 +103,14 @@ type TokenFromEnvAuthorizer struct {
 func (ta *TokenFromEnvAuthorizer) Authorize(r *http.Request) {
     token := os.Getenv(ta.EnvName)
     r.Header.Add("X-ChatWorkToken", token)
+}
+
+// APIトークンをそのまま設定するAuthorizerの実装
+type TokenFromValueAuthorizer struct {
+    Token string
+}
+
+func (ta *TokenFromValueAuthorizer) Authorize(r *http.Request) {
+    r.Header.Add("X-ChatWorkToken", ta.Token)
 }
 
