@@ -39,17 +39,18 @@ func NewCwApi() *CwApi {
     api := CwApi{}
     api.Host    = DEFAULT_HOST
     api.Version = DEFAULT_VERSION
+    api.Auth    = &TokenFromEnvAuthorizer{DEFAULT_TOKEN_ENV}
     return &api
 }
 
 // http.Requestをつくる
-func (ca *CwApi) toRequest() (*http.Request, error) {
-    url := "https://" + ca.Host + "/" + ca.Version + "/" + strings.Join(ca.Paths, "/")
-    req, err := http.NewRequest(ca.Method, url, nil)
+func (a *CwApi) toRequest() (*http.Request, error) {
+    url := "https://" + a.Host + "/" + a.Version + "/" + strings.Join(a.Paths, "/")
+    req, err := http.NewRequest(a.Method, url, nil)
 
-    if ca.Param != nil {
-        query := ca.Param.Encode()
-        if strings.ToUpper(ca.Method) == "GET" {
+    if a.Param != nil {
+        query := a.Param.Encode()
+        if strings.ToUpper(a.Method) == "GET" {
             req.URL.RawQuery = query
         } else {
             req.Body = ioutil.NopCloser(strings.NewReader(query))
@@ -59,7 +60,7 @@ func (ca *CwApi) toRequest() (*http.Request, error) {
     if err != nil {
         return req, err
     }
-    ca.Auth.Authorize(req)
+    a.Auth.Authorize(req)
     return req, nil
 }
 

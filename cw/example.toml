@@ -11,5 +11,5 @@ token   = "deadbeefb001"
 
 [profiles.arai]
 auth    = "token"
-version = "v3"
-token   = "e999ef466023868ea2fded8c098c39d1"
+version = "v2"
+token   = "cfd0e99946023868f8c098c"

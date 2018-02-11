@@ -52,8 +52,6 @@ func main() {
     api.Paths = paths
     api.Param = param
 
-    api.Auth = &TokenFromEnvAuthorizer{DEFAULT_TOKEN_ENV}
-
     req, err := api.toRequest()
     if err != nil {
         fmt.Println(err)
