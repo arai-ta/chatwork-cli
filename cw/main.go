@@ -2,12 +2,21 @@ package main
 
 import (
     "fmt"
+    "flag"
     "net/http"
     "net/url"
     "io"
     "os"
     "strings"
 )
+
+var (
+    optVerbose bool
+)
+
+func initFlags() {
+    flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
+}
 
 func parseArguments(args []string) (string, []string, url.Values) {
     method  := "GET"
@@ -37,7 +46,10 @@ func parseArguments(args []string) (string, []string, url.Values) {
 
 func main() {
 
-    meth, paths, param := parseArguments(os.Args[1:])
+    initFlags()
+    flag.Parse()
+
+    meth, paths, param := parseArguments(flag.Args())
 
     cfg, err := ReadConfig("")
     if err != nil {
@@ -56,32 +68,46 @@ func main() {
         return
     }
 
-    fmt.Print(req.Method+" ")
-    fmt.Println(req.URL)
-    printHeader(req.Header)
-
     client := &http.Client{}
-
     res, err := client.Do(req)
     if err != nil {
         fmt.Println(err)
         return
     }
 
-    fmt.Println(res.Status)
-    printHeader(res.Header)
-    printBody(res)
+    if (optVerbose) {
+        printReqHeader(req)
+        printResHeader(res)
+    }
+
+    printResBody(res)
 }
 
-func printHeader(h http.Header) {
+func warn(format string, args ...interface{}) {
+    fmt.Fprintf(os.Stderr, format, args...)
+}
+
+func printReqHeader(req *http.Request) {
+    warn("> %s %s\n", req.Method, req.URL)
+    printHeader(">", req.Header)
+    warn(">\n")
+}
+
+func printResHeader(res *http.Response) {
+    warn("< %s\n", res.Status)
+    printHeader("<", res.Header)
+    warn("<\n")
+}
+
+func printHeader(prefix string, h http.Header) {
     for name, values := range h {
         for _, v := range values {
-            fmt.Println(name+": "+v)
+            warn("%s %s: %s\n", prefix, name, v)
         }
     }
 }
 
-func printBody(res *http.Response) {
+func printResBody(res *http.Response) {
     io.Copy(os.Stdout, res.Body)
     res.Body.Close()
 }
