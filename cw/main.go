@@ -8,13 +8,14 @@ import (
     "io"
     "os"
     "strings"
+    "sort"
 )
 
 var (
     optVerbose bool
 )
 
-func initFlags() {
+func init() {
     flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
 }
 
@@ -46,7 +47,6 @@ func parseArguments(args []string) (string, []string, url.Values) {
 
 func main() {
 
-    initFlags()
     flag.Parse()
 
     meth, paths, param := parseArguments(flag.Args())
@@ -100,8 +100,15 @@ func printResHeader(res *http.Response) {
 }
 
 func printHeader(prefix string, h http.Header) {
-    for name, values := range h {
-        for _, v := range values {
+    // get keys
+    keys := make([]string, len(h))
+    for k := range h {
+        keys = append(keys, k)
+    }
+    // sort by name
+    sort.Strings(keys)
+    for _, name := range keys {
+        for _, v := range h[name] {
             warn("%s %s: %s\n", prefix, name, v)
         }
     }
