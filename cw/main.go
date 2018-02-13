@@ -12,16 +12,23 @@ import (
     "bufio"
 )
 
+const (
+    APP_NAME = "chatwork-cli/cw"
+    APP_VERSION = "0.1"
+)
+
 var (
     optVerbose bool
     optConfigure string
     optProfile string
+    optVersion bool
 )
 
 func init() {
     flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
     flag.StringVar(&optConfigure, "configure", "", "Configure authentication")
     flag.StringVar(&optProfile, "profile", "", "Specify profile name to use")
+    flag.BoolVar(&optVersion, "version", false, "Show version number")
 }
 
 func parseArguments(args []string) (string, []string, url.Values) {
@@ -50,9 +57,18 @@ func parseArguments(args []string) (string, []string, url.Values) {
     return method, paths, params
 }
 
+func getVersion() string {
+    return fmt.Sprintf("%s ver.%s", APP_NAME, APP_VERSION)
+}
+
 func main() {
 
     flag.Parse()
+
+    if optVersion {
+        fmt.Println(getVersion())
+        return
+    }
 
     if optConfigure != "" {
         doConfigure(optConfigure)

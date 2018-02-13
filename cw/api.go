@@ -85,6 +85,8 @@ func (a *CwApi) toRequest() (*http.Request, error) {
 
     // fmt.Printf("param len = %d\n", len(a.Param))
 
+    req.Header.Set("User-Agent", getVersion())
+
     if a.Param != nil && 0 < len(a.Param) {
         query := a.Param.Encode()
         if meth == "GET" {
