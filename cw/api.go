@@ -7,6 +7,7 @@ import (
     "io/ioutil"
     "os"
     "strings"
+    "regexp"
 )
 
 const (
@@ -71,12 +72,22 @@ func NewCwApiWithProfile(prof *ApiConfigProfile) *CwApi {
 
 // http.Requestをつくる
 func (a *CwApi) toRequest() (*http.Request, error) {
-    url := "https://" + a.Host + "/" + a.Version + "/" + strings.Join(a.Paths, "/")
-    req, err := http.NewRequest(a.Method, url, nil)
 
-    if a.Param != nil {
+    meth := strings.ToUpper(a.Method)
+    ok, err := regexp.MatchString(`[A-Z]+`, meth)
+    if !ok || err != nil {
+        fmt.Println(err)
+        return nil, fmt.Errorf("Error: invalid method or error with: %s", a.Method)
+    }
+
+    url := "https://" + a.Host + "/" + a.Version + "/" + strings.Join(a.Paths, "/")
+    req, err := http.NewRequest(meth, url, nil)
+
+    // fmt.Printf("param len = %d\n", len(a.Param))
+
+    if a.Param != nil && 0 < len(a.Param) {
         query := a.Param.Encode()
-        if strings.ToUpper(a.Method) == "GET" {
+        if meth == "GET" {
             req.URL.RawQuery = query
         } else {
             req.Body = ioutil.NopCloser(strings.NewReader(query))
