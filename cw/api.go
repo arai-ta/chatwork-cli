@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
     "net/http"
     "net/url"
     "io/ioutil"
@@ -79,6 +80,9 @@ func (a *CwApi) toRequest() (*http.Request, error) {
             req.URL.RawQuery = query
         } else {
             req.Body = ioutil.NopCloser(strings.NewReader(query))
+            req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+            req.Header.Set("Content-Length", fmt.Sprintf("%d", len(query)))
+            //fmt.Printf("q = %s, len = %d\n", query, len(query))
         }
     }
 
