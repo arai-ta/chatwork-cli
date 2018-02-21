@@ -17,16 +17,19 @@ const (
 )
 
 var (
+    optHelp bool
     optVerbose bool
     optProfile string
     optVersion bool
 )
 
 func init() {
+    flag.BoolVar(&optHelp, "h", false, "Show help message")
+    flag.BoolVar(&optVerbose, "help", false, "Show help message (long)")
     flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
     flag.BoolVar(&optVerbose, "verbose", false, "Dump http headers (long)")
-    flag.StringVar(&optProfile, "p", "", "Specify profile name to use")
-    flag.StringVar(&optProfile, "profile", "", "Specify profile name to use (long)")
+    flag.StringVar(&optProfile, "p", "", "Specify `profile` name to use")
+    flag.StringVar(&optProfile, "profile", "", "Specify `profile` name to use (long)")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
 }
 
@@ -63,6 +66,17 @@ func getVersion() string {
 func main() {
 
     flag.Parse()
+
+    if optHelp {
+        fmt.Printf(`
+%s -- Simple cli tools for chatwork API
+
+Available options:
+
+`, getVersion())
+        flag.PrintDefaults()
+        return
+    }
 
     if optVersion {
         fmt.Println(getVersion())
