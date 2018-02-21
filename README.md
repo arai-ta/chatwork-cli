@@ -4,6 +4,10 @@ chatwork-cli
 `chatwork-cli` is simple command line tools for
 [chatwork API](http://developer.chatwork.com).
 
+## Install
+
+    $ go get github.com/arai-ta/chatwork-cli/cw
+
 ## Usage
 
     $ cw
@@ -35,10 +39,6 @@ It works with chatwork API token.
     $ cp example.toml ~/.chatwork.toml
     $ vi ~/.chatwork.toml
     # edit it, like this: `token = hereisyourapitoken`
-
-## Install
-
-:innocent:
 
 ## Lisence
 
