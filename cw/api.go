@@ -103,14 +103,18 @@ func (a *CwApi) toRequest() (*http.Request, error) {
     if err != nil {
         return req, err
     }
-    a.Auth.Authorize(req)
+    err = a.Auth.Authorize(req)
+    if err != nil {
+        return nil, err
+    }
+
     return req, nil
 }
 
 
 // 何かの方法でリクエストに認証情報をつけるオブジェクトを示すinterface
 type CwApiAuthorizer interface {
-    Authorize(r *http.Request)
+    Authorize(r *http.Request) error
 }
 
 // 環境変数からAPIトークンを読み取るAuthorizerの実装
@@ -118,9 +122,13 @@ type TokenFromEnvAuthorizer struct {
     EnvName string
 }
 
-func (ta *TokenFromEnvAuthorizer) Authorize(r *http.Request) {
-    token := os.Getenv(ta.EnvName)
+func (ta *TokenFromEnvAuthorizer) Authorize(r *http.Request) error {
+    token, ok := os.LookupEnv(ta.EnvName)
+    if !ok {
+        return fmt.Errorf("Error: Environment variable not set: " + ta.EnvName)
+    }
     r.Header.Add("X-ChatWorkToken", token)
+    return nil
 }
 
 // APIトークンをそのまま設定するAuthorizerの実装
@@ -128,7 +136,8 @@ type TokenFromValueAuthorizer struct {
     Token string
 }
 
-func (ta *TokenFromValueAuthorizer) Authorize(r *http.Request) {
+func (ta *TokenFromValueAuthorizer) Authorize(r *http.Request) error {
     r.Header.Add("X-ChatWorkToken", ta.Token)
+    return nil
 }
 
