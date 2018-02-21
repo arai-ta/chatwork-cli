@@ -24,7 +24,9 @@ var (
 
 func init() {
     flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
-    flag.StringVar(&optProfile, "profile", "", "Specify profile name to use")
+    flag.BoolVar(&optVerbose, "verbose", false, "Dump http headers (long)")
+    flag.StringVar(&optProfile, "p", "", "Specify profile name to use")
+    flag.StringVar(&optProfile, "profile", "", "Specify profile name to use (long)")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
 }
 
