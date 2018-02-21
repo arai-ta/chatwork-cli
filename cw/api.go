@@ -45,13 +45,15 @@ func NewCwApi() *CwApi {
     return &api
 }
 
-func NewCwApiFromConfig(cfg *ApiConfig) *CwApi {
-    name := cfg.DefaultProfile
-    prof, ok := cfg.Profiles[name]
+func NewCwApiFromConfig(cfg *ApiConfig, profile string) (*CwApi, error) {
+    if profile == "" {
+        profile = cfg.DefaultProfile
+    }
+    prof, ok := cfg.Profiles[profile]
     if ok {
-        return NewCwApiWithProfile(&prof)
+        return NewCwApiWithProfile(&prof), nil
     } else {
-        return NewCwApi()
+        return nil, fmt.Errorf("Error: profile not found: %s", profile)
     }
 }
 
@@ -63,8 +65,7 @@ func NewCwApiWithProfile(prof *ApiConfigProfile) *CwApi {
     if prof.Version != "" {
         api.Version = prof.Version
     }
-    switch prof.Auth {
-    case "token":
+    if prof.Token != "" {
         api.Auth = &TokenFromValueAuthorizer{prof.Token}
     }
     return api

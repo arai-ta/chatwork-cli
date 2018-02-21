@@ -1,15 +1,11 @@
+default_profile = "default"
 
-default_profile = "ar"
+[profiles.default]
+token   = "mysecrettoken"
 
-[profiles]
-
-[profiles.a1]
+[profiles.debug]
 host    = "local.chatwork.com/sub/dir/"
-version = "v2"
-auth    = "token"
 token   = "deadbeefb001"
 
-[profiles.arai]
-auth    = "token"
-version = "v2"
+[profiles.personal]
 token   = "cfd0e99946023868f8c098c"

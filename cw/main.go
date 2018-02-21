@@ -73,13 +73,11 @@ func main() {
 func doRequest() {
     meth, paths, param := parseArguments(flag.Args())
 
-    cfg, err := ReadConfig("")
+    api, err := createApi()
     if err != nil {
         fmt.Println(err)
         return
     }
-
-    api := NewCwApiFromConfig(cfg)
     api.Method = meth
     api.Paths = paths
     api.Param = param
@@ -103,6 +101,25 @@ func doRequest() {
     }
 
     printResBody(res)
+}
+
+func createApi() (*CwApi, error) {
+    cfg, err := ReadConfig()
+    if cfg != nil {
+        // config exists
+        api, err := NewCwApiFromConfig(cfg, optProfile)
+        if err != nil {
+            return nil, err
+        }
+        return api, nil
+    } else {
+        if os.IsExist(err) {
+            // exists, but can not read
+            return nil, err
+        }
+        // not exists. fallback to default
+        return NewCwApi(), nil
+    }
 }
 
 func warn(format string, args ...interface{}) {
