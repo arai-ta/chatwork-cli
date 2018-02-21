@@ -12,6 +12,7 @@ import (
 )
 
 const (
+    APP_COMMAND = "cw"
     APP_NAME = "chatwork-cli/cw"
     APP_VERSION = "0.1"
 )
@@ -30,6 +31,30 @@ func init() {
     flag.StringVar(&optProfile, "p", "", "Specify `profile` name to use")
     flag.StringVar(&optConfigFile, "f", "", "Specify `configfile` to use")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
+}
+
+func main() {
+
+    flag.Parse()
+
+    if optVersion {
+        fmt.Println(getVersion())
+        return
+    }
+
+    if optHelp || len(flag.Args()) < 2 {
+        fmt.Printf(`%s -- Simple command line tool for chatwork API
+
+Usage: %s [options] <verb> [paths...]
+
+Available options:
+
+`, APP_COMMAND, APP_COMMAND)
+        flag.PrintDefaults()
+        return
+    }
+
+    doRequest()
 }
 
 func parseArguments(args []string) (string, []string, url.Values) {
@@ -60,29 +85,6 @@ func parseArguments(args []string) (string, []string, url.Values) {
 
 func getVersion() string {
     return fmt.Sprintf("%s ver.%s", APP_NAME, APP_VERSION)
-}
-
-func main() {
-
-    flag.Parse()
-
-    if optHelp {
-        fmt.Printf(`
-%s -- Simple cli tools for chatwork API
-
-Available options:
-
-`, getVersion())
-        flag.PrintDefaults()
-        return
-    }
-
-    if optVersion {
-        fmt.Println(getVersion())
-        return
-    }
-
-    doRequest()
 }
 
 func doRequest() {
