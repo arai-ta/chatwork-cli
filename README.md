@@ -6,19 +6,35 @@ chatwork-cli
 
 ## Usage
 
-```sh
-$ cw GET /me
-# ==> HTTP GET http://api.chatwork.com/v2/me
+    $ cw
+    # ==> Show usage and exit
 
-$ cw GET /my/tasks
-# ==> HTTP GET http://api.chatwork.com/v2/my/tasks
+    $ cw GET /me
+    # ==> HTTP GET http://api.chatwork.com/v2/me
 
-$ cw get my tasks   # alternative
-# ==> HTTP GET http://api.chatwork.com/v2/my/tasks
+    $ cw GET /my/tasks
+    # ==> HTTP GET http://api.chatwork.com/v2/my/tasks
 
-$ cw POST rooms "name=New room for topic X"
-# ==> HTTP POST http://api.chatwork.com/v2/rooms
-```
+    $ cw get my tasks   # alternative
+    # ==> HTTP GET http://api.chatwork.com/v2/my/tasks
+
+    $ cw POST rooms "name=New room for topic X"
+    # ==> HTTP POST http://api.chatwork.com/v2/rooms
+
+## Configuration
+
+It works with chatwork API token.
+(OAuth2 will be implemented in the near future)
+
+### Environment Variable
+
+    $ export CW_API_TOKEN=hereisyourapitoken
+
+### Configuration File
+
+    $ cp example.toml ~/.chatwork.toml
+    $ vi ~/.chatwork.toml
+    # edit it, like this: `token = hereisyourapitoken`
 
 ## Install
 
