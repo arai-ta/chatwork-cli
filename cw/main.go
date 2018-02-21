@@ -14,7 +14,7 @@ import (
 const (
     APP_COMMAND = "cw"
     APP_NAME = "chatwork-cli/cw"
-    APP_VERSION = "0.1"
+    APP_VERSION = "0.9"
 )
 
 var (
