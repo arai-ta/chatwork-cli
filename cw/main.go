@@ -20,6 +20,7 @@ var (
     optHelp bool
     optVerbose bool
     optProfile string
+    optConfigFile string
     optVersion bool
 )
 
@@ -27,6 +28,7 @@ func init() {
     flag.BoolVar(&optHelp, "h", false, "Show help message")
     flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
     flag.StringVar(&optProfile, "p", "", "Specify `profile` name to use")
+    flag.StringVar(&optConfigFile, "f", "", "Specify `configfile` to use")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
 }
 
@@ -117,7 +119,7 @@ func doRequest() {
 }
 
 func createApi() (*CwApi, error) {
-    cfg, err := ReadConfig()
+    cfg, err := ReadConfig(optConfigFile)
     if cfg != nil {
         // config exists
         api, err := NewCwApiFromConfig(cfg, optProfile)

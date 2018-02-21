@@ -18,8 +18,10 @@ type ApiConfigProfile struct {
     Token   string
 }
 
-func ReadConfig() (*ApiConfig, error) {
-    filename := getDefaultConfigPath()
+func ReadConfig(filename string) (*ApiConfig, error) {
+    if filename == "" {
+        filename = getDefaultConfigPath()
+    }
     _, err := os.Stat(filename)
     if err != nil {
         return nil, err
