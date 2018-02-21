@@ -9,7 +9,6 @@ import (
     "os"
     "strings"
     "sort"
-    "bufio"
 )
 
 const (
@@ -19,14 +18,12 @@ const (
 
 var (
     optVerbose bool
-    optConfigure string
     optProfile string
     optVersion bool
 )
 
 func init() {
     flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
-    flag.StringVar(&optConfigure, "configure", "", "Configure authentication")
     flag.StringVar(&optProfile, "profile", "", "Specify profile name to use")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
 }
@@ -70,26 +67,7 @@ func main() {
         return
     }
 
-    if optConfigure != "" {
-        doConfigure(optConfigure)
-        return
-    }
-
     doRequest()
-}
-
-func doConfigure(authType string) {
-    switch authType {
-    case "token":
-        fmt.Print("Enter your API token: ")
-        scanner := bufio.NewScanner(os.Stdin)
-        scanner.Scan()
-        token := scanner.Text()
-        fmt.Println(token)
-    default:
-        fmt.Println("Error: invalid configure arg:" + authType)
-        return
-    }
 }
 
 func doRequest() {
