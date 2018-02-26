@@ -16,6 +16,10 @@ func Test_ReadConfig_canReadExampleFile(t *testing.T) {
         t.Errorf("DefaultProfile expected 'default', but: %s", cfg.DefaultProfile)
     }
 
+    if cfg.Values["room_id"] != "95297208" {
+        t.Errorf("Values[room_id] is not expected value: %s", cfg.Values["room_id"])
+    }
+
     prof, ok := cfg.Profiles["default"]
     if !ok {
         t.Errorf("Profile[default] expected to be existed, but nil")

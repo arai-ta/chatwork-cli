@@ -9,6 +9,7 @@ import (
 
 type ApiConfig struct {
     DefaultProfile  string `toml:"default_profile"`
+    Values          map[string]string
     Profiles        map[string]ApiConfigProfile
 }
 
