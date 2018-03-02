@@ -75,9 +75,8 @@ func NewCwApiWithProfile(prof *ApiConfigProfile) *CwApi {
 func (a *CwApi) toRequest() (*http.Request, error) {
 
     meth := strings.ToUpper(a.Method)
-    ok, err := regexp.MatchString(`[A-Z]+`, meth)
+    ok, err := regexp.MatchString(`^[A-Z]+$`, meth)
     if !ok || err != nil {
-        fmt.Println(err)
         return nil, fmt.Errorf("Error: invalid method or error with: %s", a.Method)
     }
 
