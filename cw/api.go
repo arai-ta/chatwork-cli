@@ -11,9 +11,9 @@ import (
 )
 
 const (
-    DEFAULT_HOST    = "api.chatwork.com"
-    DEFAULT_VERSION = "v2"
-    DEFAULT_TOKEN_ENV   = "CW_API_TOKEN"
+    DefaultHost    = "api.chatwork.com"
+    DefaultVersion = "v2"
+    DefaultTokenEnvName   = "CW_API_TOKEN"
 )
 
 // APIへのリクエストに必要な情報を集めた構造体
@@ -39,21 +39,26 @@ type CwApi struct {
 
 func NewCwApi() *CwApi {
     api := CwApi{}
-    api.Host    = DEFAULT_HOST
-    api.Version = DEFAULT_VERSION
-    api.Auth    = &TokenFromEnvAuthorizer{DEFAULT_TOKEN_ENV}
+    api.Host    = DefaultHost
+    api.Version = DefaultVersion
+    api.Auth    = &TokenFromEnvAuthorizer{DefaultTokenEnvName}
     return &api
 }
 
-func NewCwApiFromConfig(cfg *ApiConfig, profile string) (*CwApi, error) {
+func NewCwApiByConfig(cfg *ApiConfig, profile string) (*CwApi, error) {
+    if cfg == nil {
+        return NewCwApi(), nil
+    }
+
     if profile == "" {
         profile = cfg.DefaultProfile
     }
+
     prof, ok := cfg.Profiles[profile]
     if ok {
         return NewCwApiWithProfile(&prof), nil
     } else {
-        return nil, fmt.Errorf("Error: profile not found: %s", profile)
+        return nil, fmt.Errorf("profile not found: %s", profile)
     }
 }
 
@@ -73,17 +78,17 @@ func NewCwApiWithProfile(prof *ApiConfigProfile) *CwApi {
 
 // http.Requestをつくる
 func (a *CwApi) toRequest() (*http.Request, error) {
-
     meth := strings.ToUpper(a.Method)
-    ok, err := regexp.MatchString(`^[A-Z]+$`, meth)
-    if !ok || err != nil {
-        return nil, fmt.Errorf("Error: invalid method or error with: %s", a.Method)
+    ok, _ := regexp.MatchString(`^[A-Z]+$`, meth)
+    if !ok {
+        return nil, fmt.Errorf("invalid method: %s", a.Method)
     }
 
     url := "https://" + a.Host + "/" + a.Version + "/" + strings.Join(a.Paths, "/")
     req, err := http.NewRequest(meth, url, nil)
-
-    // fmt.Printf("param len = %d\n", len(a.Param))
+    if err != nil {
+        return nil, err
+    }
 
     req.Header.Set("User-Agent", getVersion())
 
@@ -95,13 +100,9 @@ func (a *CwApi) toRequest() (*http.Request, error) {
             req.Body = ioutil.NopCloser(strings.NewReader(query))
             req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
             req.Header.Set("Content-Length", fmt.Sprintf("%d", len(query)))
-            //fmt.Printf("q = %s, len = %d\n", query, len(query))
         }
     }
 
-    if err != nil {
-        return req, err
-    }
     err = a.Auth.Authorize(req)
     if err != nil {
         return nil, err
@@ -124,7 +125,7 @@ type TokenFromEnvAuthorizer struct {
 func (ta *TokenFromEnvAuthorizer) Authorize(r *http.Request) error {
     token, ok := os.LookupEnv(ta.EnvName)
     if !ok {
-        return fmt.Errorf("Error: Environment variable not set: " + ta.EnvName)
+        return fmt.Errorf("environment variable not set: " + ta.EnvName)
     }
     r.Header.Add("X-ChatWorkToken", token)
     return nil

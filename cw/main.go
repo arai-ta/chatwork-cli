@@ -9,12 +9,13 @@ import (
     "os"
     "strings"
     "sort"
+    "log"
 )
 
 const (
-    APP_COMMAND = "cw"
-    APP_NAME = "chatwork-cli/cw"
-    APP_VERSION = "0.9"
+    AppCommand = "cw"
+    AppName = "chatwork-cli/cw"
+    AppVersion = "0.9"
 )
 
 var (
@@ -31,6 +32,11 @@ func init() {
     flag.StringVar(&optProfile, "p", "", "Specify `profile` name to use")
     flag.StringVar(&optConfigFile, "f", "", "Specify `configfile` to use")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
+
+    // set up logger for error messaget
+    log.SetOutput(os.Stderr)
+    log.SetPrefix("Error: ")
+    log.SetFlags(0)
 }
 
 func main() {
@@ -49,7 +55,7 @@ Usage: %s [options] <verb> [paths...]
 
 Available options:
 
-`, APP_COMMAND, APP_COMMAND)
+`, AppCommand, AppCommand)
         flag.PrintDefaults()
         return
     }
@@ -69,6 +75,7 @@ func parseArguments(args []string) (string, []string, url.Values) {
                 p := strings.SplitN(a, "=", 2)
                 params.Set(p[0], p[1])
             } else {
+                // パラメタ名が無いものはとりあえずパスとして扱う
                 paths = append(paths, a)
             }
         }
@@ -84,32 +91,34 @@ func parseArguments(args []string) (string, []string, url.Values) {
 }
 
 func getVersion() string {
-    return fmt.Sprintf("%s ver.%s", APP_NAME, APP_VERSION)
+    return fmt.Sprintf("%s ver.%s", AppName, AppVersion)
 }
 
 func doRequest() {
-    meth, paths, param := parseArguments(flag.Args())
-
-    api, err := createApi()
+    cfg, err := ReadConfig(optConfigFile)
     if err != nil {
-        fmt.Println(err)
-        return
+        log.Fatalf("failed to load config: %s\n", err)
     }
+
+    api, err := NewCwApiByConfig(cfg, optProfile)
+    if err != nil {
+        log.Fatalln(err)
+    }
+
+    meth, paths, param := parseArguments(flag.Args())
     api.Method = meth
     api.Paths = paths
     api.Param = param
 
     req, err := api.toRequest()
     if err != nil {
-        fmt.Println(err)
-        return
+        log.Fatalln(err)
     }
 
     client := &http.Client{}
     res, err := client.Do(req)
     if err != nil {
-        fmt.Println(err)
-        return
+        log.Fatalln(err)
     }
 
     if (optVerbose) {
@@ -120,39 +129,20 @@ func doRequest() {
     printResBody(res)
 }
 
-func createApi() (*CwApi, error) {
-    cfg, err := ReadConfig(optConfigFile)
-    if cfg != nil {
-        // config exists
-        api, err := NewCwApiFromConfig(cfg, optProfile)
-        if err != nil {
-            return nil, err
-        }
-        return api, nil
-    } else {
-        if os.IsExist(err) {
-            // exists, but can not read
-            return nil, err
-        }
-        // not exists. fallback to default
-        return NewCwApi(), nil
-    }
-}
-
-func warn(format string, args ...interface{}) {
+func stderr(format string, args ...interface{}) {
     fmt.Fprintf(os.Stderr, format, args...)
 }
 
 func printReqHeader(req *http.Request) {
-    warn("> %s %s\n", req.Method, req.URL)
+    stderr("> %s %s\n", req.Method, req.URL)
     printHeader(">", req.Header)
-    warn(">\n")
+    stderr(">\n")
 }
 
 func printResHeader(res *http.Response) {
-    warn("< %s\n", res.Status)
+    stderr("< %s\n", res.Status)
     printHeader("<", res.Header)
-    warn("<\n")
+    stderr("<\n")
 }
 
 func printHeader(prefix string, h http.Header) {
@@ -165,7 +155,7 @@ func printHeader(prefix string, h http.Header) {
     sort.Strings(keys)
     for _, name := range keys {
         for _, v := range h[name] {
-            warn("%s %s: %s\n", prefix, name, v)
+            stderr("%s %s: %s\n", prefix, name, v)
         }
     }
 }

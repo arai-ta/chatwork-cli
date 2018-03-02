@@ -4,8 +4,11 @@ import (
     "os"
     "os/user"
     "path/filepath"
+
     "github.com/BurntSushi/toml"
 )
+
+const DefaultConfigFile = ".chatwork.toml"
 
 type ApiConfig struct {
     DefaultProfile  string `toml:"default_profile"`
@@ -23,9 +26,14 @@ func ReadConfig(filename string) (*ApiConfig, error) {
     if filename == "" {
         filename = getDefaultConfigPath()
     }
+
     _, err := os.Stat(filename)
     if err != nil {
-        return nil, err
+        if os.IsNotExist(err) {
+            return nil, nil // no file is not an error
+        } else {
+            return nil, err
+        }
     }
 
     var cfg ApiConfig
@@ -41,6 +49,6 @@ func getDefaultConfigPath() string {
     if err != nil {
         panic(err)
     }
-    return filepath.Join(user.HomeDir, ".chatwork.toml")
+    return filepath.Join(user.HomeDir, DefaultConfigFile)
 }
 
