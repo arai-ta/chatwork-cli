@@ -40,6 +40,9 @@ test-cli: build
 	# work with config
 	$(TARGET) -f example.toml get me $(omit)
 	$(TARGET) -f example.toml -p personal get me $(omit)
+	$(TARGET) -f notexist.toml get me $(omit); $(it_exit_with) 1
 	# headers
 	$(TARGET) -v -f example.toml get me $(it_produces) "^\(>\|<\)"
+	# values replacing
+	$(TARGET) -v -f example.toml get rooms {room_id} messages $(it_produces) "GET.*/rooms/95297208/messages"
 

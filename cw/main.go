@@ -105,7 +105,9 @@ func doRequest() {
         log.Fatalln(err)
     }
 
-    meth, paths, param := parseArguments(flag.Args())
+    args := cfg.ApplyValues(flag.Args())
+
+    meth, paths, param := parseArguments(args)
     api.Method = meth
     api.Paths = paths
     api.Param = param

@@ -4,6 +4,8 @@ import (
     "os"
     "os/user"
     "path/filepath"
+    "fmt"
+    "strings"
 
     "github.com/BurntSushi/toml"
 )
@@ -14,6 +16,29 @@ type ApiConfig struct {
     DefaultProfile  string `toml:"default_profile"`
     Values          map[string]string
     Profiles        map[string]ApiConfigProfile
+}
+
+func (cfg *ApiConfig) ApplyValues(args []string) []string {
+    if cfg == nil || len(cfg.Values) == 0 {
+        // noop
+        return args
+    }
+
+    oldnew := make([]string, len(cfg.Values) * 2)
+    i := 0
+    for key, value := range cfg.Values {
+        oldnew[i] = fmt.Sprintf("{%s}", key)
+        oldnew[i+1] = value
+        i += 2
+    }
+
+    rep := strings.NewReplacer(oldnew...)
+    result := make([]string, len(args))
+    for i, a := range args {
+        result[i] = rep.Replace(a)
+    }
+
+    return result
 }
 
 type ApiConfigProfile struct {
