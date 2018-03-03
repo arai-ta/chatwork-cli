@@ -9,6 +9,7 @@ omit = >/dev/null 2>&1
 endif
 it_produces  = 2>&1 | grep -q
 it_exit_with = test $$? =
+without_token = unset CW_API_TOKEN
 
 ###### targets #######
 
@@ -36,11 +37,11 @@ test-cli: build
 	$(TARGET) -invalidflag $(omit); $(it_exit_with) 2
 	# work with token
 	HOME= CW_API_TOKEN=token $(TARGET) get me $(omit)
-	unset CW_API_TOKEN ; $(TARGET) get me $(it_produces) "environment variable not set"
+	$(without_token) ; $(TARGET) get me $(it_produces) "environment variable not set"
 	# work with config
 	$(TARGET) -f example.toml get me $(omit)
 	$(TARGET) -f example.toml -p personal get me $(omit)
-	$(TARGET) -f notexist.toml get me $(omit); $(it_exit_with) 1
+	$(without_token) ; $(TARGET) -f notexist.toml get me $(omit); $(it_exit_with) 1
 	# headers
 	$(TARGET) -v -f example.toml get me $(it_produces) "^\(>\|<\)"
 	# values replacing
