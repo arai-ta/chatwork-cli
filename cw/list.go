@@ -2,38 +2,18 @@ package main
 
 import (
     "fmt"
-    // "net/http"
+    "net/http"
+    "net/url"
     "io/ioutil"
     "sort"
     "strings"
 
-    //"github.com/k0kubun/pp"
     "gopkg.in/yaml.v2"
 )
 
 const (
-    RamlFileUrl = "https://raw.githubusercontent.com/chatwork/api/master/RAML/api-ja.raml"
-    RamlFileName = "api-ja.raml"
+    OfficialRamlFileUrl = "https://raw.githubusercontent.com/chatwork/api/master/RAML/api-ja.raml"
 )
-
-func main() {
-    bytes, err := ioutil.ReadFile(RamlFileName)
-    if err != nil {
-        fmt.Println(err)
-        return
-    }
-    raml, err := ParseRaml(bytes)
-
-    for _, e := range raml {
-        fmt.Printf("%s\t%s -- %s\n", e.Method, e.Path, e.Description)
-    }
-
-    if err != nil {
-        fmt.Println("NG" + err.Error())
-    } else {
-        fmt.Println("OK")
-    }
-}
 
 type EndPoint struct {
     Method  string
@@ -41,19 +21,66 @@ type EndPoint struct {
     Description string
 }
 
+func ShowEndPoints(raml string) error {
+    if raml == "" {
+        raml = OfficialRamlFileUrl
+    }
+
+    bytes, err := GetRaml(raml)
+    if err != nil {
+        return err
+    }
+
+    endpoints, err := ParseRaml(bytes)
+    if err != nil {
+        return err
+    }
+
+    for _, e := range endpoints {
+        fmt.Printf("%s\t%s -- %s\n", e.Method, e.Path, e.Description)
+    }
+
+    return nil
+}
+
+func GetRaml(location string) ([]byte, error) {
+    var data []byte
+    var err error
+
+    u, err := url.Parse(location)
+    if err == nil && (u.Scheme == "http" || u.Scheme == "https") {
+        // It's a URL
+        resp, err := http.Get(location)
+        if err == nil {
+            data, err = ioutil.ReadAll(resp.Body)
+            defer resp.Body.Close()
+        }
+    } else {
+        // It may be a file
+        data, err = ioutil.ReadFile(location)
+    }
+    if err != nil {
+        return nil, err
+    }
+
+    return data, nil
+}
+
 func ParseRaml(data []byte) ([]EndPoint, error) {
     var raml map[interface{}]interface{}
+    var ep []EndPoint
+
     err := yaml.Unmarshal(data, &raml)
+    if err != nil {
+        return ep, err
+    }
 
-    ep := new([]EndPoint)
-
-    parse(ep, "", raml)
-
-    sort.Slice(*ep, func(i, j int) bool {
-        return (*ep)[i].Path < (*ep)[j].Path
+    parse(&ep, "", raml)
+    sort.Slice(ep, func(i, j int) bool {
+        return (ep)[i].Path < (ep)[j].Path
     })
 
-    return *ep, err
+    return ep, nil
 }
 
 func parse(ep *[]EndPoint, current string, node map[interface{}]interface{}) {
@@ -73,6 +100,5 @@ func parse(ep *[]EndPoint, current string, node map[interface{}]interface{}) {
             }
         }
     }
-    return
 }
 

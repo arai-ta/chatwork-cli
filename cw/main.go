@@ -24,6 +24,8 @@ var (
     optProfile string
     optConfigFile string
     optVersion bool
+    optEndpoint bool
+    optRamlFile string
 )
 
 func init() {
@@ -32,6 +34,8 @@ func init() {
     flag.StringVar(&optProfile, "p", "", "Specify `profile` name to use")
     flag.StringVar(&optConfigFile, "f", "", "Specify `configfile` to use")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
+    flag.BoolVar(&optEndpoint, "endpoint", false, "List endpoints")
+    flag.StringVar(&optRamlFile, "raml", "", "Specify `ramlfile` url or path")
 
     // set up logger for error messaget
     log.SetOutput(os.Stderr)
@@ -45,6 +49,11 @@ func main() {
 
     if optVersion {
         fmt.Println(getVersion())
+        return
+    }
+
+    if optEndpoint {
+        ShowEndPoints(optRamlFile)
         return
     }
 
