@@ -15,7 +15,7 @@ import (
 const (
     AppCommand = "cw"
     AppName = "chatwork-cli/cw"
-    AppVersion = "0.9"
+    AppVersion = "1.0"
 )
 
 var (
@@ -35,7 +35,7 @@ func init() {
     flag.StringVar(&optConfigFile, "f", "", "Specify `configfile` to use")
     flag.BoolVar(&optVersion, "version", false, "Show version number")
     flag.BoolVar(&optEndpoint, "endpoint", false, "List endpoints")
-    flag.StringVar(&optRamlFile, "raml", "", "Specify `ramlfile` url or path")
+    flag.StringVar(&optRamlFile, "raml", "", "Specify `ramlfile` url or path for -endpoint option")
 
     // set up logger for error messaget
     log.SetOutput(os.Stderr)

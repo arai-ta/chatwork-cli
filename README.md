@@ -1,8 +1,7 @@
 chatwork-cli
 ============
 
-`chatwork-cli` is simple command line tools for
-[chatwork API](http://developer.chatwork.com).
+`chatwork-cli` is a simple command line client for [chatwork API][1].
 
 ## Install
 
@@ -25,6 +24,30 @@ chatwork-cli
     $ cw POST rooms "name=New room for topic X"
     # ==> HTTP POST http://api.chatwork.com/v2/rooms
 
+## Features
+
+### Parameter Substitution
+
+Edit `~/.chatwork.toml` file as following:
+
+    [values]
+    mychat = "17708368"
+
+then you can do like this:
+
+    $ cw post rooms {mychat} messages "body=I'm hungry:("
+    # ==> HTTP POST https://api.chatwork.com/v2/rooms/17708368/messages
+
+### Listing Available Endpoints
+
+[chatwork API][1] is providing a [RAML definition][2].
+`-endpoint` option will read definition and show list of available endpoints.
+
+### Multiple Profiles
+
+You can use API with multiple accounts by using configuration file.
+See below.
+
 ## Configuration
 
 It works with chatwork API token.
@@ -44,3 +67,5 @@ It works with chatwork API token.
 
 This software is released under the MIT License.
 
+[1]: http://developer.chatwork.com
+[2]: https://github.com/chatwork/api
