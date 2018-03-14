@@ -27,12 +27,6 @@ test-unit:
 	go test
 
 test-cli: build
-	# messages
-	$(TARGET) $(it_produces) "Simple command line tool"
-	$(TARGET) -h $(it_produces) "Simple command line tool"
-	$(TARGET) -version $(it_produces) "chatwork-cli/cw.*ver\."
-	# argument error
-	$(TARGET) -invalidflag $(omit); $(it_exit_with) 2
 	# work with token
 	HOME= CW_API_TOKEN=token $(TARGET) get me $(omit)
 	$(without_token) ; $(TARGET) get me $(it_produces) "environment variable not set"
