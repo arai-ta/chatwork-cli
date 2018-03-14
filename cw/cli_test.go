@@ -7,7 +7,7 @@ import (
 )
 
 func TestSmokeRun(t *testing.T) {
-    cli.Run("cw")
+    cli.Run("./cw")
     if !cli.Success() {
         t.Fatalf("Expected to succeed, but failed: %s", cli.Error())
     }
