@@ -7,7 +7,7 @@ jobs:
     docker:
       - image: circleci/golang:1.10
 
-    working_directory: /go/src/github.com/{{ORG_NAME}}/{{REPO_NAME}}
+    working_directory: /go/src/github.com/arai-ta/chatwork-cli
     steps:
       - checkout
       - run: go get -v -t -d ./cw
