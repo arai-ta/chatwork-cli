@@ -1,6 +1,8 @@
 chatwork-cli
 ============
 
+[![CircleCI](https://circleci.com/gh/arai-ta/chatwork-cli.svg?style=shield)](https://circleci.com/gh/arai-ta/chatwork-cli)
+
 `chatwork-cli` is a simple command line client for [chatwork API][1].
 
 ## Install
