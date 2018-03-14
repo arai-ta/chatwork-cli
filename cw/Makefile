@@ -27,8 +27,6 @@ test-unit:
 	go test
 
 test-cli: build
-	# smoke test
-	$(TARGET) $(omit)
 	# messages
 	$(TARGET) $(it_produces) "Simple command line tool"
 	$(TARGET) -h $(it_produces) "Simple command line tool"
