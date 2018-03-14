@@ -12,3 +12,4 @@ jobs:
       - checkout
       - run: go get -v -t -d ./cw
       - run: go build -o a.out ./cw
+      - run: (cd ./cw; make test)
