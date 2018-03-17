@@ -6,52 +6,39 @@ import (
     cli "github.com/rendon/testcli"
 )
 
+const (
+    helpMessage = "cw -- Simple command line tool for chatwork API"
+    versionRegex = `chatwork-cli/cw.*ver\.`
+)
+
 func TestSmokeRun(t *testing.T) {
     cli.Run("./cw")
-    expectSuccess(t)
-    expectShowHelp(t)
+    if !cli.Success() {
+        t.Log(cli.Error())
+        t.Fatalf("Command with no argument will be successful, but failed")
+    }
 }
 
 func TestShowHelp(t *testing.T) {
     cli.Run("./cw", "-h")
-    expectSuccess(t)
-    expectShowHelp(t)
+    if !cli.StdoutContains(helpMessage) {
+        t.Log(cli.Stdout())
+        t.Fatalf("Command with '-h' will show help, but not supplied")
+    }
 }
 
 func TestShowVersion(t *testing.T) {
     cli.Run("./cw", "-version")
-    expectSuccess(t)
-    expectShowVersion(t)
+    if !cli.StdoutMatches(versionRegex) {
+        t.Log(cli.Stdout())
+        t.Fatalf("Command with '-version' will show version, but not supplied")
+    }
 }
 
 func TestArgumentError(t *testing.T) {
     cli.Run("./cw", "-invalidflag")
-    expectFailure(t)
-}
-
-
-func expectSuccess(t *testing.T) {
-    if !cli.Success() {
-        t.Fatalf("Expected to succeed, but failed: %s", cli.Error())
-    }
-}
-
-func expectFailure(t *testing.T) {
     if !cli.Failure() {
-        t.Fatalf("Expected to fail, but succeeded")
-    }
-}
-
-func expectShowHelp(t *testing.T) {
-    if !cli.StdoutContains("Simple command line tool") {
-        t.Fatalf("Expected to show help, but not matched: %s", cli.Stdout())
-    }
-}
-
-func expectShowVersion(t *testing.T) {
-    regex := `chatwork-cli/cw.*ver\.`
-    if !cli.StdoutMatches(regex) {
-        t.Fatalf("Expected: %s, actual: %s", regex, cli.Stdout())
+        t.Fatalf("Command with invalid flag will fail, but succeeded")
     }
 }
 
