@@ -1,40 +1,40 @@
 package main
 
 import (
-    "testing"
+	"testing"
 )
 
 const ExampleConfig = "example.toml"
 
 func Test_ReadConfig_canReadExampleFile(t *testing.T) {
-    cfg, err := ReadConfig(ExampleConfig)
-    if err != nil {
-        t.Errorf("Failed to read example: %s", err)
-    }
+	cfg, err := ReadConfig(ExampleConfig)
+	if err != nil {
+		t.Errorf("Failed to read example: %s", err)
+	}
 
-    if cfg.DefaultProfile != "default" {
-        t.Errorf("DefaultProfile expected 'default', but: %s", cfg.DefaultProfile)
-    }
+	if cfg.DefaultProfile != "default" {
+		t.Errorf("DefaultProfile expected 'default', but: %s", cfg.DefaultProfile)
+	}
 
-    if cfg.Values["room_id"] != "95297208" {
-        t.Errorf("Values[room_id] is not expected value: %s", cfg.Values["room_id"])
-    }
+	if cfg.Values["room_id"] != "95297208" {
+		t.Errorf("Values[room_id] is not expected value: %s", cfg.Values["room_id"])
+	}
 
-    prof, ok := cfg.Profiles["default"]
-    if !ok {
-        t.Errorf("Profile[default] expected to be existed, but nil")
-    }
+	prof, ok := cfg.Profiles["default"]
+	if !ok {
+		t.Errorf("Profile[default] expected to be existed, but nil")
+	}
 
-    if prof.Token != "mysecrettoken" {
-        t.Errorf("profiles.default.token is not expected value: %s", prof.Token)
-    }
+	if prof.Token != "mysecrettoken" {
+		t.Errorf("profiles.default.token is not expected value: %s", prof.Token)
+	}
 
-    if prof.Version != "" {
-        t.Errorf("profiles.default.version is not expected value: %s", prof.Version)
-    }
+	if prof.Version != "" {
+		t.Errorf("profiles.default.version is not expected value: %s", prof.Version)
+	}
 
-    if prof.Host != "" {
-        t.Errorf("profiles.default.host is not expected value: %s", prof.Host)
-    }
+	if prof.Host != "" {
+		t.Errorf("profiles.default.host is not expected value: %s", prof.Host)
+	}
 
 }
