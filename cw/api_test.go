@@ -8,11 +8,11 @@ import (
 
 func Test_Api(t *testing.T) {
 
-	api := NewCwApi()
-	api.Method = "POST"
-	api.Version = "v2"
-	api.Host = "api.chatwork.com"
-	api.Paths = []string{"aaa", "bbbb"}
+	//	api := NewCwApi()
+	//	api.Method = "POST"
+	//	api.Version = "v2"
+	//	api.Host = "api.chatwork.com"
+	//	api.Paths = []string{"aaa", "bbbb"}
 
 	param, _ := url.ParseQuery("foo=bar&hoge=fufa&file=@path")
 
@@ -30,11 +30,11 @@ func Test_Api(t *testing.T) {
 		log.Printf("%T -> %T\n", key, val)
 	}
 
-	api.Param = param
-	req, _ := api.toRequest()
-	log.Printf("%#v", req.URL.String())
+	//	api.Param = param
+	//	req, _ := api.toRequest()
+	//	log.Printf("%#v", req.URL.String())
 	log.Printf("%#v", f)
 
-	t.Errorf("api test error end", api)
+	t.Errorf("api test error end")
 
 }

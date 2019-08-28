@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -35,6 +39,9 @@ type CwApi struct {
 
 	// リクエストに認証情報をつけるオブジェクト
 	Auth CwApiAuthorizer
+
+	// multipartで送るか
+	UseMultiPart bool
 }
 
 func NewCwApi() *CwApi {
@@ -96,7 +103,44 @@ func (a *CwApi) toRequest() (*http.Request, error) {
 		query := a.Param.Encode()
 		if meth == "GET" {
 			req.URL.RawQuery = query
+		} else if a.UseMultiPart {
+			// multipart
+			body := &bytes.Buffer{}
+			mw := multipart.NewWriter(body)
+			for key, val := range a.Param {
+				v := val[0] // 1つめを常に見る
+				// attach file
+				if v[0] == '@' {
+					// open file
+					path := v[1:]
+					fh, err := os.Open(string(path))
+					if err != nil {
+						return nil, err
+					}
+					defer fh.Close()
+
+					// attach
+					fw, err := mw.CreateFormFile(key, filepath.Base(path))
+					_, err = io.Copy(fw, fh)
+					if err != nil {
+						return nil, err
+					}
+				} else {
+					fw, err := mw.CreateFormField(key)
+					_, err = fw.Write([]byte(v))
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+			err = mw.Close()
+			if err != nil {
+				return nil, err
+			}
+			req.Body = ioutil.NopCloser(body)
+			req.Header.Set("Content-Type", mw.FormDataContentType())
 		} else {
+			// form-urlencoded
 			req.Body = ioutil.NopCloser(strings.NewReader(query))
 			req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 			req.Header.Set("Content-Length", fmt.Sprintf("%d", len(query)))

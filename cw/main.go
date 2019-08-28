@@ -23,6 +23,7 @@ var (
 	optVerbose    bool
 	optProfile    string
 	optConfigFile string
+	optMultiPart  bool
 	optVersion    bool
 	optEndpoint   bool
 	optRamlFile   string
@@ -33,6 +34,7 @@ func init() {
 	flag.BoolVar(&optVerbose, "v", false, "Dump http headers")
 	flag.StringVar(&optProfile, "p", "", "Specify `profile` name to use")
 	flag.StringVar(&optConfigFile, "f", "", "Specify `configfile` to use")
+	flag.BoolVar(&optMultiPart, "m", false, "Use mutipart/form-data")
 	flag.BoolVar(&optVersion, "version", false, "Show version number")
 	flag.BoolVar(&optEndpoint, "endpoint", false, "List endpoints")
 	flag.StringVar(&optRamlFile, "raml", "", "Specify `ramlfile` url or path for -endpoint option")
@@ -120,6 +122,7 @@ func doRequest() {
 	api.Method = meth
 	api.Paths = paths
 	api.Param = param
+	api.UseMultiPart = optMultiPart
 
 	req, err := api.toRequest()
 	if err != nil {
