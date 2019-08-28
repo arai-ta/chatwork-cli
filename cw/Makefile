@@ -19,6 +19,7 @@ default: build
 build: $(TARGET)
 
 $(TARGET): *.go
+	go fmt
 	go build
 
 test: test-cli test-unit
